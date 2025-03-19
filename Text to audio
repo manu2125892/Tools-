@@ -26,3 +26,118 @@
     <script src="script.js"></script>
 </body>
 </html>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f4f4f4;
+}
+
+.container {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+select, input {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #007BFF;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 5px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+let synth = window.speechSynthesis;
+let voicesDropdown = document.getElementById("voices");
+
+function loadVoices() {
+    let voices = synth.getVoices();
+    voicesDropdown.innerHTML = "";
+    voices.forEach((voice, index) => {
+        let option = document.createElement("option");
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        voicesDropdown.appendChild(option);
+    });
+}
+
+// Load voices initially and on change
+synth.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speakText() {
+    let text = document.getElementById("text").value;
+    let rate = document.getElementById("rate").value;
+    let pitch = document.getElementById("pitch").value;
+    let selectedVoice = voicesDropdown.value;
+
+    if (text.trim() === "") {
+        alert("Please enter some text!");
+        return;
+    }
+
+    let speech = new SpeechSynthesisUtterance(text);
+    let voices = synth.getVoices();
+    speech.voice = voices[selectedVoice];
+    speech.rate = rate;
+    speech.pitch = pitch;
+    synth.speak(speech);
+}
+
+// Function to download speech as an audio file
+function downloadAudio() {
+    let text = document.getElementById("text").value;
+    let rate = document.getElementById("rate").value;
+    let pitch = document.getElementById("pitch").value;
+    let selectedVoice = voicesDropdown.value;
+
+    if (text.trim() === "") {
+        alert("Please enter some text!");
+        return;
+    }
+
+    let speech = new SpeechSynthesisUtterance(text);
+    let voices = synth.getVoices();
+    speech.voice = voices[selectedVoice];
+    speech.rate = rate;
+    speech.pitch = pitch;
+
+    let audio = new Audio();
+    let blob = new Blob([text], { type: "audio/wav" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "speech.wav";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
